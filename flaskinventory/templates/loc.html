@@ -1,0 +1,111 @@
+{% extends "overview.html" %}
+{% block content %}
+<div class="container">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+     {%if messages %}
+          {%for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+               <h4 style="text-align:center;">{{ message }}</h4>
+            </div>
+          {%endfor%}
+    {%endif %}
+  {%endwith%}
+</div>
+<div class="container">
+
+<h1>Locations</h1>
+<div >
+  <h3 style="display: inline-block;margin:0;"> Add or remove warehouse locations</h3>
+  <button type="button" class="btn btn-add" data-toggle="modal" data-target="#exampleModal">
+   <span class="btn-icon-add"><i class="glyphicon glyphicon-plus"></i></span>Add Location</button>
+</div>
+
+<!-- Modal code-->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" style="margin-top:150px;">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="exampleModalLabel">Add Location</h3>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+      <form  action="" method="post">
+          {{ form.csrf_token() }}
+          {{form.locname.label(class="form-control-label")}}<br>
+          {{form.locname(class="form-control form-control-lg")}}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <div >
+          {{ form.locsubmit(class="btn btn-primary") }}
+       </div>
+      </div>
+    </form>
+    </div>
+  </div>
+</div>
+<!--end of modal design-->
+
+<table class="table table-hover">
+<thead>
+ <tr>
+   <th>ID</th>
+   <th>Name</th>
+   <th></th>
+   <th></th>
+ </tr>
+</thead>
+<tbody>
+  {% for d in details %}
+  <tr>
+    <td>{{d.loc_id}}</td>
+    <td>{{d.loc_name}}</td>
+   <td>
+       <button type="button" class="btn btn-edit" data-toggle="modal" data-target ="#edit{{d.loc_id}}">
+       <span class="btn-icon"><i class="glyphicon glyphicon-pencil"></i></span>Edit</button>
+   </td>
+   <!--editmodal-->
+   <div class="modal fade" id="edit{{d.loc_id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" style="margin-top:150px;">
+     <div class="modal-dialog" role="document">
+       <div class="modal-content">
+         <div class="modal-header">
+           <h3 class="modal-title" id="exampleModalLabel">Edit Location</h3>
+           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+             <span aria-hidden="true">&times;</span>
+           </button>
+         </div>
+         <div id="modal-cont" class="modal-body" >
+        <form  action="" method="POST" id="">
+          <input type="hidden" name="locid" value="{{d.loc_id}}"/>
+          <input type="hidden" name="locname" value="{{d.loc_name}}"/>
+             {{ lform.csrf_token() }}
+             {{lform.editlocname.label(class="form-control-label")}}<br>
+             {{ lform.editlocname(class="form-control form-control-lg",placeholder=d.loc_name) }}
+
+         </div>
+         <div class="modal-footer">
+           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+           <div >
+             {{ lform.editlocsubmit(class="btn btn-primary") }}
+           </div>
+         </div>
+       </form>
+      </div>
+    </div>
+
+   </div>
+   <!--editmodal end-->
+   <td>
+      <a href="{{ url_for('delete', p_id = d.loc_id,type ='location' )}}">
+       <button type="button" class="btn btn-delete">
+       <span class="btn-icon"><i class="glyphicon glyphicon-trash"></i></span>Delete</button>
+   </td>
+ </tr>
+{% endfor %}
+</tbody>
+
+</table>
+</div>
+{% endblock content %}
