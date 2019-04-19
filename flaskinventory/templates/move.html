@@ -1,0 +1,98 @@
+{% extends "overview.html" %}
+{% block content %}
+  <div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+       {%if messages %}
+            {%for category, message in messages %}
+              <div class="alert alert-{{ category }}">
+                <h4 style="text-align:center;">{{ message }}</h4>
+              </div>
+            {%endfor%}
+      {%endif %}
+    {%endwith%}
+  </div>
+  <div class="container">
+
+<h1>Transfers</h1>
+<div >
+  <h3 style="display: inline-block;margin:0;"> Manage product movement</h3>
+  <button type="button" class="btn btn-add" data-toggle="modal" data-target="#exampleModal">
+   <span class="btn-icon-add"><i class="glyphicon glyphicon-plus"></i></span>Move Product</button>
+</div>
+
+<!-- Modal code-->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" style="margin-top:150px;">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+
+        <h3 class="modal-title" id="exampleModalLabel">Move Product</h3>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form  action="" method="post">
+          {{ form.csrf_token() }}
+
+            {{form.mprodname.label(class="form-control-label")}}<br>
+              <div id="prod">
+            {{form.mprodname(class="form-control form-control-lg")}}
+          </div>
+
+          <div id="from">
+          {{form.src.label(class="form-control-label")}}<br>
+          {{form.src(class="form-control form-control-lg")}}
+          </div>
+          <div id="to">
+          {{form.destination.label(class="form-control-label")}}<br>
+          {{form.destination(class="form-control form-control-lg")}}
+          </div>
+
+            {{form.mprodqty.label(class="form-control-label")}}<br>
+          <div class="qty">
+            {{form.mprodqty(class="form-control form-control-lg") }}
+          </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <div class="move" >
+          {{ form.movesubmit(class="btn btn-primary") }}
+       </div>
+      </div>
+    </form>
+    </div>
+  </div>
+</div>
+<!--end of modal design-->
+
+<table class="table table-hover">
+<thead>
+ <tr>
+   <th>ID</th>
+   <th>Timestamp</th>
+   <th>From</th>
+   <th>To</th>
+   <th>Product</th>
+   <th>Quantity </th>
+ </tr>
+</thead>
+<tbody>
+{%for d in details%}
+ <tr>
+   <td>{{d.mid}}</td>
+   <td>{{d.ts}}</td>
+   <td>{{d.frm}}</td>
+   <td>{{d.to}}</td>
+   <td>{{d.pname}}</td>
+   <td>{{d.pqty}}</td>
+ </tr>
+ {% endfor %}
+</tbody>
+</table>
+
+</div>
+
+
+{% endblock content %}

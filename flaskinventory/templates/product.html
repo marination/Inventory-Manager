@@ -1,0 +1,129 @@
+{% extends "overview.html" %}
+{% block content %}
+<div class="container">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+     {%if messages %}
+          {%for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+               <h4 style="text-align:center;">{{ message }}</h4>
+            </div>
+          {%endfor%}
+    {%endif %}
+  {%endwith%}
+</div>
+<div class="container">
+
+<h1>Products</h1>
+<div >
+  <h3 style="display: inline-block;margin:0;"> Manage products in your central Warehouse</h3>
+  <button type="button" class="btn btn-add" data-toggle="modal" data-target="#exampleModal">
+   <span class="btn-icon-add"><i class="glyphicon glyphicon-plus"></i></span>Add Product</button>
+</div>
+
+<!-- add Modal code-->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" style="margin-top:150px;">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="exampleModalLabel">Add Product</h3>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div id="modal-cont" class="modal-body" >
+        <form  action="" method="POST" id="products">
+          {{ form.csrf_token() }}
+          {{form.prodname.label(class="form-control-label")}}<br>
+          {{ form.prodname(class="form-control form-control-lg") }}
+
+          {{form.prodqty.label(class="form-control-label")}}<br>
+          <div class="prodname">
+            {{form.prodqty(class="form-control form-control-lg")}}
+          </div>
+
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <div >
+          {{ form.prodsubmit(class="btn btn-primary") }}
+        </div>
+      </div>
+    </form>
+   </div>
+ </div>
+
+</div>
+<!--end of modal design-->
+
+<table class="table table-hover">
+<thead>
+ <tr>
+   <th>ID</th>
+   <th>Product Name</th>
+   <th>Unallocated Quantity</th>
+   <th></th>
+   <th></th>
+ </tr>
+</thead>
+<tbody>
+  {% for d in details %}
+  <tr>
+   <td>{{d.prod_id}}</td>
+   <td>{{d.prod_name}}</td>
+   <td>{{d.prod_qty}}</td>
+   <td>
+       <button type="button" class="btn btn-edit" data-toggle="modal" data-target = "#edit{{d.prod_id}}" >
+       <span class="btn-icon"><i class="glyphicon glyphicon-pencil"></i></span>Edit</button>
+
+   </td>
+   <!--editmodal-->
+   <div class="modal fade" id="edit{{d.prod_id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" style="margin-top:150px;">
+     <div class="modal-dialog" role="document">
+       <div class="modal-content">
+         <div class="modal-header">
+           <h3 class="modal-title" id="exampleModalLabel">Edit Product</h3>
+           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+             <span aria-hidden="true">&times;</span>
+           </button>
+         </div>
+         <div id="modal-cont" class="modal-body" >
+           <form  action="" method="POST" id="products">
+             <input type="hidden" name="productid" value="{{d.prod_id}}"/>
+             <input type="hidden" name="productname" value="{{d.prod_name}}"/>
+             {{ eform.csrf_token() }}
+             {{eform.editname.label(class="form-control-label")}}<br>
+             {{ eform.editname(class="form-control form-control-lg",placeholder=d.prod_name) }}
+
+             {{eform.editqty.label(class="form-control-label")}}<br>
+             {{eform.editqty(class="form-control form-control-lg",placeholder=d.prod_qty)}}
+         </div>
+         <div class="modal-footer">
+           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+           <div >
+              <!--<a href="{{ url_for('product', p_id = d.prod_id) }}">-->
+             {{ eform.editsubmit(class="btn btn-primary") }}
+             <!--</a>-->
+           </div>
+         </div>
+       </form>
+      </div>
+    </div>
+
+   </div>
+   <!--editmodal end-->
+   <td>
+      <a href="{{ url_for('delete', p_id = d.prod_id,type ='product') }}">
+       <button type="button" class="btn btn-delete">
+       <span class="btn-icon"><i class="glyphicon glyphicon-trash"></i></span>Delete</button></a>
+   </td>
+ </tr>
+{%endfor%}
+</tbody>
+
+</table>
+<script type="text/javascript">
+
+</script>
+
+{% endblock content %}
