@@ -2,7 +2,8 @@ from flask import  render_template,url_for,redirect,flash,request,jsonify
 from flaskinventory import app,db
 from flaskinventory.forms import addproduct,addlocation,moveproduct,editproduct,editlocation
 from flaskinventory.models import Location,Product,Movement,Balance
-import time,datetime,json
+import time,datetime
+from sqlalchemy.exc import IntegrityError
 
 
 @app.route("/Overview")
@@ -11,10 +12,8 @@ def overview():
     balance = Balance.query.all()
     exists = bool(Balance.query.all())
     if exists== False :
-            flash(f'Add products,locations and make transfers to view','info')
+        flash(f'Add products,locations and make transfers to view','info')
     return render_template('overview.html' ,balance=balance)
-
-
 
 
 @app.route("/Product", methods = ['GET','POST'])
@@ -26,7 +25,7 @@ def product():
     if exists== False and request.method == 'GET' :
             flash(f'Add products to view','info')
     elif eform.validate_on_submit() and request.method == 'POST':
-        '''p_id = request.args.get('p_id')'''
+
         p_id = request.form.get("productid","")
         pname = request.form.get("productname","")
         details = Product.query.all()
@@ -35,19 +34,29 @@ def product():
         prod.prod_qty= eform.editqty.data
         Balance.query.filter_by(product=pname).update(dict(product=eform.editname.data))
         Movement.query.filter_by(pname=pname).update(dict(pname=eform.editname.data))
-        db.session.commit()
-        flash(f'Your product  has been updated!', 'success')
-        return redirect('/Product')
+        try:
+            db.session.commit()
+            flash(f'Your product  has been updated!', 'success')
+            return redirect('/Product')
+        except IntegrityError :
+            db.session.rollback()
+            flash(f'This product already exists','danger')
+            return redirect('/Product')
         return render_template('product.html',title = 'Products',details=details,eform=eform)
 
     elif form.validate_on_submit() :
-        #db.create_all()
         product = Product(prod_name=form.prodname.data,prod_qty=form.prodqty.data)
         db.session.add(product)
-        db.session.commit()
-        flash(f'Your product {form.prodname.data} has been added!', 'success')
-        return redirect(url_for('product'))
+        try:
+            db.session.commit()
+            flash(f'Your product {form.prodname.data} has been added!', 'success')
+            return redirect(url_for('product'))
+        except IntegrityError :
+            db.session.rollback()
+            flash(f'This product already exists','danger')
+            return redirect('/Product')
     return render_template('product.html',title = 'Products',eform=eform,form = form,details=details)
+
 
 
 
@@ -68,18 +77,25 @@ def loc():
         Balance.query.filter_by(location=locname).update(dict(location=lform.editlocname.data))
         Movement.query.filter_by(frm=locname).update(dict(frm=lform.editlocname.data))
         Movement.query.filter_by(to=locname).update(dict(to=lform.editlocname.data))
-        db.session.commit()
-        flash(f'Your location  has been updated!', 'success')
-        return redirect(url_for('loc'))
-        return render_template('loc.html',title = 'Locations', lform = lform,  details=details)
+        try:
+            db.session.commit()
+            flash(f'Your location  has been updated!', 'success')
+            return redirect(url_for('loc'))
+        except IntegrityError :
+            db.session.rollback()
+            flash(f'This location already exists','danger')
+            return redirect('/Location')
     elif form.validate_on_submit() :
-        flash(f'Your location {form.locname.data} has been added!', 'success')
-
-        #db.create_all()
         loc = Location(loc_name=form.locname.data)
         db.session.add(loc)
-        db.session.commit()
-        return redirect(url_for('loc'))
+        try:
+            db.session.commit()
+            flash(f'Your location {form.locname.data} has been added!', 'success')
+            return redirect(url_for('loc'))
+        except IntegrityError :
+            db.session.rollback()
+            flash(f'This location already exists','danger')
+            return redirect('/Location')
     return render_template('loc.html',title = 'Locations',lform=lform,form = form,details=details)
 
 
